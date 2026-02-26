@@ -115,20 +115,21 @@
             align-items: center;
             justify-content: center;
             gap: 0;
-            padding: 8rem 3rem 4rem;
+            padding: clamp(4rem, 8vw, 8rem) clamp(1.5rem, 4vw, 3rem) clamp(3rem, 6vw, 4rem);
             position: relative;
         }
 
         .hero-content {
             flex: 0 1 auto;
-            max-width: 640px;
+            width: 100%;
+            max-width: min(900px, 92vw);
             text-align: center;
         }
 
         .hero-portrait {
             flex-shrink: 0;
-            width: 280px;
-            height: 280px;
+            width: clamp(200px, 22vw, 320px);
+            height: clamp(200px, 22vw, 320px);
             border-radius: 50%;
             overflow: hidden;
             border: 3px solid rgba(168, 85, 247, 0.4);
@@ -177,10 +178,10 @@
         }
 
         .hero-sub {
-            max-width: 580px;
+            max-width: min(640px, 85%);
             margin-left: auto;
             margin-right: auto;
-            font-size: 1.15rem;
+            font-size: clamp(1rem, 1.5vw, 1.15rem);
             line-height: 1.7;
             color: var(--gray-text);
             font-weight: 300;
@@ -196,6 +197,34 @@
             flex-wrap: wrap;
             opacity: 0;
             animation: fadeUp 0.8s ease forwards 0.9s;
+        }
+
+        /* Hero: use horizontal space on large screens */
+        @media (min-width: 1100px) {
+            .hero {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: clamp(3rem, 6vw, 5rem);
+            }
+            .hero-content {
+                flex: 1;
+                max-width: min(640px, 52vw);
+                text-align: left;
+            }
+            .hero-portrait {
+                order: -1;
+                margin: 0;
+                width: clamp(260px, 20vw, 340px);
+                height: clamp(260px, 20vw, 340px);
+            }
+            .hero-cta {
+                justify-content: flex-start;
+            }
+            .hero-sub {
+                margin-left: 0;
+                margin-right: 0;
+            }
         }
 
         .btn {
