@@ -111,17 +111,18 @@
         .hero {
             min-height: 100vh;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 4rem;
+            justify-content: center;
+            gap: 0;
             padding: 8rem 3rem 4rem;
             position: relative;
         }
 
         .hero-content {
-            flex: 1;
+            flex: 0 1 auto;
             max-width: 640px;
+            text-align: center;
         }
 
         .hero-portrait {
@@ -177,6 +178,8 @@
 
         .hero-sub {
             max-width: 580px;
+            margin-left: auto;
+            margin-right: auto;
             font-size: 1.15rem;
             line-height: 1.7;
             color: var(--gray-text);
@@ -188,6 +191,7 @@
 
         .hero-cta {
             display: flex;
+            justify-content: center;
             gap: 1.2rem;
             flex-wrap: wrap;
             opacity: 0;
