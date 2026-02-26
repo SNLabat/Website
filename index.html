@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Labat — SEO & AI Director</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #050505;
+            --white: #f5f5f5;
+            --accent-cyan: #a855f7;
+            --accent-orange: #ff2b2b;
+            --accent-green: #39ff14;
+            --gray-dark: #111;
+            --gray-mid: #1a1a1a;
+            --gray-text: #888;
+            --font-display: 'Jost', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--black);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Grain overlay ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ─── Navigation ─── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 5, 5, 0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--accent-cyan);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--gray-text);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        .nav-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ─── Hero ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 3rem 4rem;
+            position: relative;
+        }
+
+        .hero-eyebrow {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            font-weight: 400;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.3s;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 9vw, 8rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.5s;
+        }
+
+        .hero h1 .line-2 {
+            display: block;
+            color: var(--accent-orange);
+        }
+
+        .hero-sub {
+            max-width: 580px;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--gray-text);
+            font-weight: 300;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.7s;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.9s;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: var(--black);
+            border: 2px solid var(--accent-cyan);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--accent-cyan);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--white);
+        }
+
+        /* Decorative glow */
+        .hero-glow {
+            position: absolute;
+            top: 20%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-glow-2 {
+            position: absolute;
+            bottom: 10%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 107, 43, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ─── Section Shared ─── */
+        section {
+            padding: 6rem 3rem;
+        }
+
+        .section-label {
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 3rem;
+        }
+
+        /* ─── About ─── */
+        .about {
+            background: var(--gray-dark);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about-text p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--gray-text);
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-text strong {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-content: start;
+        }
+
+        .stat-card {
+            padding: 2rem;
+            background: var(--black);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-orange);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ─── Experience ─── */
+        .experience {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-orange), var(--accent-green));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 3.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            transform: translateX(-5px);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .timeline-item:nth-child(2)::before { background: var(--accent-orange); box-shadow: 0 0 15px rgba(255, 107, 43, 0.4); }
+        .timeline-item:nth-child(3)::before { background: var(--accent-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+        .timeline-item:nth-child(4)::before { background: var(--accent-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+        .timeline-item:nth-child(5)::before { background: var(--accent-orange); box-shadow: 0 0 15px rgba(255, 107, 43, 0.4); }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item:nth-child(2) .timeline-date { color: var(--accent-orange); }
+        .timeline-item:nth-child(3) .timeline-date { color: var(--accent-green); }
+        .timeline-item:nth-child(4) .timeline-date { color: var(--accent-cyan); }
+        .timeline-item:nth-child(5) .timeline-date { color: var(--accent-orange); }
+
+        .timeline-role {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-company {
+            font-size: 0.95rem;
+            color: var(--gray-text);
+            margin-bottom: 1rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--gray-text);
+            font-weight: 300;
+            max-width: 600px;
+        }
+
+        /* ─── Skills ─── */
+        .skills {
+            background: var(--gray-dark);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .skills-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .skill-group h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--accent-cyan);
+            display: inline-block;
+        }
+
+        .skill-group:nth-child(2) h3 { border-color: var(--accent-orange); }
+        .skill-group:nth-child(3) h3 { border-color: var(--accent-green); }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .skill-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            font-weight: 400;
+            transition: all 0.3s;
+        }
+
+        .skill-tag:hover {
+            border-color: var(--accent-cyan);
+            color: var(--white);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        /* ─── Certifications ─── */
+        .certs {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .certs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+        }
+
+        .cert-card {
+            padding: 1.8rem;
+            background: var(--gray-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cert-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cert-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .cert-card:hover::before {
+            opacity: 1;
+        }
+
+        .cert-icon {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cert-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* ─── Contact ─── */
+        .contact {
+            text-align: center;
+            padding: 8rem 3rem;
+            position: relative;
+        }
+
+        .contact-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .contact .section-title {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-subtitle {
+            color: var(--gray-text);
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.9rem 1.6rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 400;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .contact-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            padding: 2rem 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.2);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            nav { padding: 1.2rem 1.5rem; }
+            .nav-links { display: none; }
+            .nav-menu-btn { display: block; }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0; right: 0;
+                background: rgba(5,5,5,0.95);
+                backdrop-filter: blur(20px);
+                padding: 1.5rem 2rem;
+                gap: 1.2rem;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+
+            section { padding: 4rem 1.5rem; }
+            .hero { padding: 7rem 1.5rem 3rem; }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .certs-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .timeline { padding-left: 2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .certs-grid {
+                grid-template-columns: 1fr;
+            }
+            .about-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <a href="#" class="nav-logo">AL<span>.</span></a>
+    <button class="nav-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+    <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#certs">Certifications</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
+    <p class="hero-eyebrow">Director of SEO & AI</p>
+    <h1>
+        Alex Labat<span class="line-2">is building what's next.</span>
+    </h1>
+    <p class="hero-sub">
+        15+ years bridging SEO and technology — building AI-powered tools, crafting data-driven strategies, and translating complex insights into business results.
+    </p>
+    <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Get in Touch ↗</a>
+        <a href="#experience" class="btn btn-outline">See My Work</a>
+    </div>
+</section>
+
+<!-- About -->
+<section class="about" id="about">
+    <div class="about-grid">
+        <div class="about-text reveal">
+            <span class="section-label">About</span>
+            <h2 class="section-title">Strategy meets<br>execution.</h2>
+            <p>
+                I'm a <strong>digital strategist</strong> who builds things — from comprehensive SEO architectures to custom AI solutions using the Anthropic, OpenAI, and Azure APIs. My background as a <strong>TV news anchor</strong> means I know how to take complex data and turn it into a story anyone can act on.
+            </p>
+            <p>
+                Whether it's a technical SEO audit, a custom automation workflow, or copy that converts, I bring <strong>full-funnel thinking</strong> to every engagement. I'm equally comfortable in a client boardroom and a code editor.
+            </p>
+        </div>
+        <div class="about-stats reveal">
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Years Experience</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">AI</div>
+                <div class="stat-label">Custom Solutions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">SEO</div>
+                <div class="stat-label">Full-Stack Strategy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">TV</div>
+                <div class="stat-label">Broadcast Roots</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+    <div class="experience">
+        <span class="section-label reveal">Experience</span>
+        <h2 class="section-title reveal">Where I've<br>made impact.</h2>
+        <div class="timeline">
+            <div class="timeline-item reveal">
+                <div class="timeline-date">2019 — Present</div>
+                <div class="timeline-role">Director of SEO & AI</div>
+                <div class="timeline-company">Burning Stick Creative</div>
+                <div class="timeline-desc">Constructing comprehensive SEO strategies spanning copywriting, keyword research, and front-end/back-end development. Building and deploying custom AI solutions using Anthropic, OpenAI, and Azure APIs to create automation workflows that generate new revenue streams.</div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="timeline-date">2017 — 2018</div>
+                <div class="timeline-role">Director of Online Engagement</div>
+                <div class="timeline-company">Lafayette Travel</div>
+                <div class="timeline-desc">Grew the organization's digital presence across all major social platforms, earning verified status and ensuring brand consistency across channels.</div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="timeline-date">2016 — 2017</div>
+                <div class="timeline-role">Communications Coordinator</div>
+                <div class="timeline-company">Lafayette General Health</div>
+                <div class="timeline-desc">Served as the strategic communications bridge between internal health system staff and external media, while supporting outreach efforts for the Lafayette General Foundation.</div>
+            </div>
+            <div class="timeline-item reveal">
+                <div class="timeline-date">2011 — 2016</div>
+                <div class="timeline-role">News Anchor / Producer / Reporter</div>
+                <div class="timeline-company">KATC Communications</div>
+                <div class="timeline-desc">Produced and anchored award-winning live and studio broadcasts, delivering compelling, deadline-driven storytelling to audiences across Acadiana.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills -->
+<section class="skills" id="skills">
+    <div class="skills-inner">
+        <span class="section-label reveal">Toolkit</span>
+        <h2 class="section-title reveal">What I bring<br>to the table.</h2>
+        <div class="skills-grid reveal">
+            <div class="skill-group">
+                <h3>SEO & Analytics</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Search Engine Optimization</span>
+                    <span class="skill-tag">Structured Data Markup</span>
+                    <span class="skill-tag">Google Analytics</span>
+                    <span class="skill-tag">Google My Business</span>
+                    <span class="skill-tag">SEMRush</span>
+                    <span class="skill-tag">Data Analysis</span>
+                    <span class="skill-tag">Keyword Research</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h3>AI & Development</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Anthropic / Claude API</span>
+                    <span class="skill-tag">OpenAI API</span>
+                    <span class="skill-tag">Microsoft Azure AI</span>
+                    <span class="skill-tag">Google Gemini AI Studio</span>
+                    <span class="skill-tag">Prompt Engineering</span>
+                    <span class="skill-tag">Front-End Development</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <h3>Communications</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Public Relations</span>
+                    <span class="skill-tag">Copywriting</span>
+                    <span class="skill-tag">Email Marketing</span>
+                    <span class="skill-tag">Brand Storytelling</span>
+                    <span class="skill-tag">Live Broadcasting</span>
+                    <span class="skill-tag">Client Reporting</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Certifications -->
+<section id="certs">
+    <div class="certs">
+        <span class="section-label reveal">Certifications</span>
+        <h2 class="section-title reveal">Credentials that<br>back it up.</h2>
+        <div class="certs-grid reveal">
+            <div class="cert-card">
+                <div class="cert-icon">🏆</div>
+                <div class="cert-name">Google Trusted Pro</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">📊</div>
+                <div class="cert-name">Google Digital Marketing</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">🛒</div>
+                <div class="cert-name">Google E-Commerce</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">⚛️</div>
+                <div class="cert-name">Meta Front-End Developer</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">📈</div>
+                <div class="cert-name">Google Analytics</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">📍</div>
+                <div class="cert-name">Google My Business</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">🔍</div>
+                <div class="cert-name">SEMRush SEO Certification</div>
+            </div>
+            <div class="cert-card">
+                <div class="cert-icon">🤖</div>
+                <div class="cert-name">Microsoft Azure AI Solutions</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section class="contact" id="contact">
+    <div class="contact-glow"></div>
+    <span class="section-label reveal">Get in Touch</span>
+    <h2 class="section-title reveal">Let's build<br>something together.</h2>
+    <p class="contact-subtitle reveal">Looking for SEO strategy, AI solutions, or a partner who speaks both code and client? Reach out.</p>
+    <div class="contact-links reveal">
+        <a href="mailto:snlabat@gmail.com" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+            snlabat@gmail.com
+        </a>
+        <a href="tel:+13372818769" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            (337) 281-8769
+        </a>
+        <a href="https://www.linkedin.com/in/labat" target="_blank" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn
+        </a>
+    </div>
+</section>
+
+<footer>
+    © 2026 Alex Labat. Built in Lafayette, LA.
+</footer>
+
+<script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Close mobile nav on link click
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.remove('open');
+        });
+    });
+</script>
+
+</body>
+</html>
