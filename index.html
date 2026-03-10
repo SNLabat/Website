@@ -114,10 +114,10 @@
         .hero {
             min-height: min(100vh, 900px);
             display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: clamp(1.5rem, 4vw, 4rem);
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
             padding: clamp(5rem, 12vw, 8rem) clamp(1rem, 5vw, 4rem) clamp(3rem, 6vw, 5rem);
             position: relative;
             max-width: 1400px;
@@ -125,10 +125,20 @@
             overflow: visible;
         }
 
+        .hero-centered {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            width: 100%;
+            margin-bottom: 2.5rem;
+        }
+
         .hero-content {
             flex: 0 1 auto;
             max-width: min(560px, 100%);
-            text-align: left;
+            text-align: center;
         }
 
         .hero-portrait {
@@ -141,7 +151,7 @@
             box-shadow: 0 0 60px rgba(168, 85, 247, 0.15);
             opacity: 0;
             animation: fadeUp 0.8s ease forwards 0.4s;
-            margin-top: 2.5rem;
+            margin-top: 0;
         }
 
         .hero-portrait img {
@@ -195,18 +205,21 @@
 
         .hero-cta {
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             gap: 1.2rem;
             flex-wrap: wrap;
             opacity: 0;
             animation: fadeUp 0.8s ease forwards 0.9s;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         .hero-badges {
             display: flex;
-            gap: 2rem;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem 2rem;
+            width: 100%;
             opacity: 0;
             animation: fadeUp 0.8s ease forwards 1s;
         }
@@ -215,7 +228,10 @@
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            align-items: flex-start;
+            align-items: center;
+            flex: 1 1 0;
+            min-width: 120px;
+            max-width: 200px;
         }
 
         .hero-badge-title {
@@ -223,18 +239,20 @@
             letter-spacing: 0.16em;
             text-transform: uppercase;
             color: var(--gray-text);
+            text-align: center;
         }
 
         .hero-badge img {
             display: block;
-            width: 150px;
+            width: 100%;
+            max-width: 150px;
             height: auto;
             border-radius: 8px;
             box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
         }
 
         .hero-badge img.badge-img-python {
-            width: 190px;
+            max-width: 190px;
         }
 
         /* Hero: stacked layout on smaller screens only */
@@ -243,10 +261,15 @@
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
-                gap: 2rem;
+                gap: 0;
                 padding: clamp(5rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(2rem, 5vw, 4rem);
                 min-height: auto;
                 max-width: none;
+            }
+            .hero-centered {
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 2rem;
             }
             .hero-content {
                 max-width: 540px;
@@ -264,11 +287,14 @@
                 justify-content: center;
             }
             .hero-badges {
-                flex-direction: column;
+                width: 100%;
                 justify-content: center;
-                align-items: center;
+                gap: 1.5rem;
             }
             .hero-badge {
+                flex: 0 1 auto;
+                min-width: 100px;
+                max-width: 160px;
                 align-items: center;
                 text-align: center;
             }
@@ -749,11 +775,24 @@
                 min-height: auto;
                 text-align: center;
             }
+            .hero-centered {
+                flex-direction: column;
+                margin-bottom: 1.5rem;
+            }
             .hero-content { max-width: none; }
             .hero-cta { justify-content: center; }
             .hero-portrait {
                 width: min(220px, 55vw);
                 height: min(220px, 55vw);
+            }
+            .hero-badges {
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-badge {
+                flex: 0 1 auto;
+                min-width: 90px;
+                max-width: 140px;
             }
 
             .about-grid {
@@ -930,51 +969,53 @@
     <canvas id="hero-canvas"></canvas>
     <div class="hero-glow"></div>
     <div class="hero-glow-2"></div>
-    <div class="hero-portrait">
-        <img src="Labat Portrait.JPG" alt="Alex Labat portrait">
-    </div>
-    <div class="hero-content">
-        <p class="hero-eyebrow">Director of SEO & AI</p>
-        <h1>
-            <span class="glitch-text" data-text="Alex Labat">Alex Labat</span><span class="line-2">is building what's next.</span>
-        </h1>
-        <p class="hero-sub">
-            15+ years bridging the gap between technology and storytelling. Building AI-powered tools, crafting data-driven strategies, and translating complex insights into stories everyone can understand.
-        </p>
-        <div class="hero-cta">
-            <a href="#contact" class="btn btn-primary">Get in Touch ↗</a>
+    <div class="hero-centered">
+        <div class="hero-portrait">
+            <img src="Labat Portrait.JPG" alt="Alex Labat portrait">
         </div>
-        <div class="hero-badges">
-            <div class="hero-badge">
-                <span class="hero-badge-title">Google AI Professional</span>
-                <a href="https://coursera.org/share/9825da81b33acfc1d2382f50031361e3" target="_blank" rel="noopener noreferrer">
-                    <img src="Google AI Professional.png" alt="Google AI Professional certificate badge" width="150" height="150">
-                </a>
+        <div class="hero-content">
+            <p class="hero-eyebrow">Director of SEO & AI</p>
+            <h1>
+                <span class="glitch-text" data-text="Alex Labat">Alex Labat</span><span class="line-2">is building what's next.</span>
+            </h1>
+            <p class="hero-sub">
+                15+ years bridging the gap between technology and storytelling. Building AI-powered tools, crafting data-driven strategies, and translating complex insights into stories everyone can understand.
+            </p>
+            <div class="hero-cta">
+                <a href="#contact" class="btn btn-primary">Get in Touch ↗</a>
             </div>
-            <div class="hero-badge">
-                <span class="hero-badge-title">Google Data Analytics Professional</span>
-                <a href="https://coursera.org/share/8d374097d7eac9f2fb787c0cef61bb1d" target="_blank" rel="noopener noreferrer">
-                    <img src="Google Data Analytics.png" alt="Google Data Analytics Professional certificate badge" width="150" height="150">
-                </a>
-            </div>
-            <div class="hero-badge">
-                <span class="hero-badge-title">Google Digital Marketing Professional</span>
-                <a href="https://coursera.org/share/f30d1715367d8a97a9a329fbda4e38d5" target="_blank" rel="noopener noreferrer">
-                    <img src="Google Digital Professional Badge.png" alt="Google Digital Marketing Professional certificate badge" width="150" height="150">
-                </a>
-            </div>
-            <div class="hero-badge">
-                <span class="hero-badge-title">Google Python Professional</span>
-                <a href="https://coursera.org/share/c22c66b458dea71dd321f21f724689a5" target="_blank" rel="noopener noreferrer">
-                    <img class="badge-img-python" src="Google Python.png" alt="Google Python Professional certificate badge" width="150" height="150">
-                </a>
-            </div>
-            <div class="hero-badge">
-                <span class="hero-badge-title">Meta Front-End Developer</span>
-                <a href="https://coursera.org/share/9e0ba3a942e04cc8c71b4499c4be3bac" target="_blank" rel="noopener noreferrer">
-                    <img src="Meta Front-End Badge.png" alt="Meta Front-End Developer certificate badge" width="150" height="150">
-                </a>
-            </div>
+        </div>
+    </div>
+    <div class="hero-badges">
+        <div class="hero-badge">
+            <span class="hero-badge-title">Google AI Professional</span>
+            <a href="https://coursera.org/share/9825da81b33acfc1d2382f50031361e3" target="_blank" rel="noopener noreferrer">
+                <img src="Google AI Professional.png" alt="Google AI Professional certificate badge" width="150" height="150">
+            </a>
+        </div>
+        <div class="hero-badge">
+            <span class="hero-badge-title">Google Data Analytics Professional</span>
+            <a href="https://coursera.org/share/8d374097d7eac9f2fb787c0cef61bb1d" target="_blank" rel="noopener noreferrer">
+                <img src="Google Data Analytics.png" alt="Google Data Analytics Professional certificate badge" width="150" height="150">
+            </a>
+        </div>
+        <div class="hero-badge">
+            <span class="hero-badge-title">Google Digital Marketing Professional</span>
+            <a href="https://coursera.org/share/f30d1715367d8a97a9a329fbda4e38d5" target="_blank" rel="noopener noreferrer">
+                <img src="Google Digital Professional Badge.png" alt="Google Digital Marketing Professional certificate badge" width="150" height="150">
+            </a>
+        </div>
+        <div class="hero-badge">
+            <span class="hero-badge-title">Google Python Professional</span>
+            <a href="https://coursera.org/share/c22c66b458dea71dd321f21f724689a5" target="_blank" rel="noopener noreferrer">
+                <img class="badge-img-python" src="Google Python.png" alt="Google Python Professional certificate badge" width="150" height="150">
+            </a>
+        </div>
+        <div class="hero-badge">
+            <span class="hero-badge-title">Meta Front-End Developer</span>
+            <a href="https://coursera.org/share/9e0ba3a942e04cc8c71b4499c4be3bac" target="_blank" rel="noopener noreferrer">
+                <img src="Meta Front-End Badge.png" alt="Meta Front-End Developer certificate badge" width="150" height="150">
+            </a>
         </div>
     </div>
 </section>
