@@ -56,10 +56,13 @@
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 100;
-            padding: 1.5rem 3rem;
+            padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 5vw, 3rem);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 3.5rem;
             backdrop-filter: blur(20px);
             background: rgba(5, 5, 5, 0.7);
             border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -68,7 +71,7 @@
         .nav-logo {
             font-family: var(--font-display);
             font-weight: 800;
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
             letter-spacing: -0.02em;
             color: var(--white);
             text-decoration: none;
@@ -109,21 +112,22 @@
 
         /* ─── Hero ─── (desktop-first: two-column, spacious) */
         .hero {
-            min-height: 100vh;
+            min-height: min(100vh, 900px);
             display: flex;
             flex-direction: row;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 4rem;
-            padding: 8rem 4rem 5rem;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            padding: clamp(5rem, 12vw, 8rem) clamp(1rem, 5vw, 4rem) clamp(3rem, 6vw, 5rem);
             position: relative;
             max-width: 1400px;
             margin: 0 auto;
+            overflow: visible;
         }
 
         .hero-content {
             flex: 0 1 auto;
-            max-width: 560px;
+            max-width: min(560px, 100%);
             text-align: left;
         }
 
@@ -237,10 +241,11 @@
         @media (max-width: 1024px) {
             .hero {
                 flex-direction: column;
-                justify-content: center;
+                justify-content: flex-start;
                 align-items: center;
                 gap: 2rem;
-                padding: 7rem 2rem 4rem;
+                padding: clamp(5rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(2rem, 5vw, 4rem);
+                min-height: auto;
                 max-width: none;
             }
             .hero-content {
@@ -248,8 +253,8 @@
                 text-align: center;
             }
             .hero-portrait {
-                width: 240px;
-                height: 240px;
+                width: min(240px, 50vw);
+                height: min(240px, 50vw);
             }
             .hero-sub {
                 margin-left: auto;
@@ -720,7 +725,7 @@
 
         /* ─── Responsive ─── */
         @media (max-width: 900px) {
-            nav { padding: 1.2rem 1.5rem; }
+            nav { padding: 0.75rem clamp(1rem, 4vw, 1.5rem); }
             .nav-links { display: none; }
             .nav-menu-btn { display: block; }
 
@@ -737,17 +742,18 @@
                 border-bottom: 1px solid rgba(255,255,255,0.05);
             }
 
-            section { padding: 4rem 1.5rem; }
+            section { padding: 4rem clamp(1rem, 4vw, 1.5rem); }
             .hero {
                 flex-direction: column;
-                padding: 7rem 1.5rem 3rem;
+                padding: clamp(4.5rem, 14vw, 7rem) clamp(1rem, 4vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+                min-height: auto;
                 text-align: center;
             }
             .hero-content { max-width: none; }
             .hero-cta { justify-content: center; }
             .hero-portrait {
-                width: 220px;
-                height: 220px;
+                width: min(220px, 55vw);
+                height: min(220px, 55vw);
             }
 
             .about-grid {
@@ -937,7 +943,6 @@
         </p>
         <div class="hero-cta">
             <a href="#contact" class="btn btn-primary">Get in Touch ↗</a>
-            <a href="#experience" class="btn btn-outline">See My Work</a>
         </div>
         <div class="hero-badges">
             <div class="hero-badge">
