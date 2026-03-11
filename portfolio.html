@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Performance Dashboard | Alex Labat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --black:       #050505;
+    --gray-dark:   #111;
+    --gray-mid:    #1a1a1a;
+    --gray-text:   #888;
+    --white:       #f5f5f5;
+    --purple:      #a855f7;
+    --red:         #ff2b2b;
+    --green:       #39ff14;
+    --card-border: rgba(255,255,255,0.06);
+    --font-display: 'Jost', sans-serif;
+    --font-body:    'Outfit', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; background: var(--black); }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Scroll progress */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--purple), var(--red), var(--green));
+    z-index: 10001; transition: width 0.08s linear;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--black);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 0; overflow: hidden; position: relative;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 60%, rgba(168,85,247,0.13) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 25%, rgba(57,255,20,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,43,43,0.06) 0%, transparent 50%);
+  }
+  .header-inner {
+    position: relative; z-index: 1;
+    max-width: 1440px; margin: 0 auto;
+    padding: 72px 48px 60px;
+  }
+  .agency-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(168,85,247,0.1);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 4px;
+    padding: 5px 16px;
+    font-family: var(--font-body);
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--purple); margin-bottom: 24px;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+    font-weight: 900; line-height: 0.95;
+    letter-spacing: -0.03em; margin-bottom: 16px;
+  }
+  h1 em { font-style: normal; color: var(--red); display: block; }
+  .header-sub {
+    font-size: 1.05rem; color: var(--gray-text);
+    font-weight: 300; max-width: 560px; margin-bottom: 52px;
+    line-height: 1.8;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+  }
+  .hero-card {
+    background: var(--gray-mid);
+    border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 22px 20px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .hero-card:hover { border-color: var(--purple); }
+  .hero-card::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 2px;
+    background: var(--c, var(--purple));
+  }
+  .hero-icon { font-size: 1.4rem; margin-bottom: 10px; }
+  .hero-value {
+    font-family: var(--font-display);
+    font-size: 2.2rem; font-weight: 800;
+    color: var(--c, white); line-height: 1;
+  }
+  .hero-label {
+    font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--gray-text); margin-top: 6px;
+  }
+
+  /* ── MAIN ── */
+  main { max-width: 1440px; margin: 0 auto; padding: 72px 48px; }
+  section { margin-bottom: 80px; }
+
+  .sec-tag {
+    font-family: var(--font-body);
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--purple); margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
+  }
+  h2 span { color: var(--red); }
+  .sec-desc { color: var(--gray-text); margin-top: 10px; font-size: 0.95rem; line-height: 1.75; font-weight: 300; }
+  .sec-hdr { margin-bottom: 32px; }
+
+  /* ── GRIDS ── */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .span2 { grid-column: span 2; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--gray-dark);
+    border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 28px;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(168,85,247,0.25); }
+  .card-title {
+    font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--gray-text); margin-bottom: 20px;
+  }
+
+  /* ── INDUSTRY CARDS ── */
+  .ind-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .ind-card {
+    background: var(--gray-dark); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 24px; position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .ind-card:hover { transform: translateY(-2px); border-color: var(--ic); }
+  .ind-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--ic); opacity: 0; transition: opacity 0.3s; }
+  .ind-card:hover::before { opacity: 1; }
+  .ind-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .ind-icon { font-size: 1.7rem; }
+  .ind-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; }
+  .ind-sub { font-size: 0.75rem; color: var(--gray-text); font-weight: 300; }
+  .ind-clients { font-size: 0.7rem; color: var(--ic); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 2px; }
+  .ind-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .ind-stat { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 6px; padding: 10px 12px; }
+  .ind-stat-val { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--ic); }
+  .ind-stat-lbl { font-size: 0.68rem; color: var(--gray-text); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .ind-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 0.72rem; font-weight: 600; margin-top: 14px;
+  }
+  .badge-up { background: rgba(57,255,20,0.1); color: var(--green); }
+
+  /* ── WIN CARDS ── */
+  .win-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .win-card {
+    background: var(--gray-dark); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 22px; position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .win-card:hover { transform: translateY(-2px); border-color: var(--wc); }
+  .win-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--wc); }
+  .win-pct { font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: var(--wc); line-height: 1; }
+  .win-metric { font-size: 0.75rem; color: var(--gray-text); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .win-industry { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-top: 12px; color: var(--white); }
+
+  /* ── GROWTH ROWS ── */
+  .growth-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .growth-row:last-child { border-bottom: none; }
+  .grow-icon { font-size: 1.1rem; width: 28px; text-align: center; flex-shrink: 0; }
+  .grow-name { width: 150px; font-size: 0.88rem; font-weight: 600; flex-shrink: 0; font-family: var(--font-display); }
+  .grow-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .grow-bar { height: 100%; border-radius: 3px; }
+  .grow-val { width: 80px; text-align: right; font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; flex-shrink: 0; }
+
+  /* ── METRIC PILLS ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 20px; }
+  .pill {
+    background: var(--gray-mid); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 14px 20px; flex: 1; min-width: 130px;
+    transition: border-color 0.3s;
+  }
+  .pill:hover { border-color: rgba(168,85,247,0.3); }
+  .pill-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; }
+  .pill-lbl { font-size: 0.68rem; color: var(--gray-text); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ── CHART WRAP ── */
+  .chart-wrap { position: relative; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 28px 48px; text-align: center;
+    color: rgba(255,255,255,0.2); font-size: 0.75rem;
+  }
+  footer strong { color: var(--purple); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1080px) { .g3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px) {
+    main { padding: 48px 20px; } .header-inner { padding: 56px 22px 48px; }
+    .g2, .g3 { grid-template-columns: 1fr; } .span2 { grid-column: span 1; }
+    .grow-name { width: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scroll-progress"></div>
+
+<!-- ════════════ HEADER ════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="agency-tag">Alex Labat · SEO Portfolio</div>
+    <h1>SEO Performance<em>Dashboard.</em></h1>
+    <p class="header-sub">Six years of organic search growth delivered across 30+ industries — from healthcare and legal to construction and retail.</p>
+    <div class="hero-grid">
+      <div class="hero-card" style="--c:#a855f7;">
+        <div class="hero-icon">🏢</div>
+        <div class="hero-value" data-count="34">0</div>
+        <div class="hero-label">Active Clients</div>
+      </div>
+      <div class="hero-card" style="--c:#39ff14;">
+        <div class="hero-icon">🌐</div>
+        <div class="hero-value" data-count="10">0+</div>
+        <div class="hero-label">Industries Served</div>
+      </div>
+      <div class="hero-card" style="--c:#ff2b2b;">
+        <div class="hero-icon">👁️</div>
+        <div class="hero-value">4.2M+</div>
+        <div class="hero-label">Impressions in 2025</div>
+      </div>
+      <div class="hero-card" style="--c:#a855f7;">
+        <div class="hero-icon">🖱️</div>
+        <div class="hero-value">46K+</div>
+        <div class="hero-label">Organic Clicks (2025)</div>
+      </div>
+      <div class="hero-card" style="--c:#39ff14;">
+        <div class="hero-icon">📈</div>
+        <div class="hero-value">6</div>
+        <div class="hero-label">Years of Reporting</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ════ 1 · YoY GROWTH ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Year Over Year</div>
+      <h2>Organic Traffic <span>Growth 2020–2025</span></h2>
+      <p class="sec-desc">Total aggregate organic users, impressions, and clicks across all managed clients — compounding growth driven by consistent, long-term SEO strategy.</p>
+    </div>
+    <div class="g2">
+      <div class="card span2">
+        <div class="card-title">Total Organic Users — All Industries Combined</div>
+        <div class="chart-wrap" style="height:300px;"><canvas id="yoyUsers"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Search Impressions — Year Over Year Growth</div>
+        <div class="chart-wrap" style="height:260px;"><canvas id="yoyImpressions"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Organic Clicks — Year Over Year Growth</div>
+        <div class="chart-wrap" style="height:260px;"><canvas id="yoyClicks"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 2 · INDUSTRY CARDS ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Industry Breakdown</div>
+      <h2>Performance <span>by Industry (2025)</span></h2>
+      <p class="sec-desc">Every industry served — total users, pageviews, and year-over-year growth rates for the 2025 reporting year.</p>
+    </div>
+    <div class="ind-grid" id="indGrid"></div>
+  </section>
+
+  <!-- ════ 3 · CHARTS ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Traffic Analysis</div>
+      <h2>Users & Pageviews <span>by Industry</span></h2>
+      <p class="sec-desc">Comparative organic website traffic across all industries for 2025.</p>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Active Users by Industry — 2025</div>
+        <div class="chart-wrap" style="height:320px;"><canvas id="indUsersBar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pageviews by Industry — 2025</div>
+        <div class="chart-wrap" style="height:320px;"><canvas id="indPVBar"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 4 · NOTABLE WINS ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Notable Wins</div>
+      <h2>Biggest <span>Growth Stories (2025)</span></h2>
+      <p class="sec-desc">Standout year-over-year gains across key metrics — organized by industry.</p>
+    </div>
+    <div class="win-grid">
+      <div class="win-card" style="--wc:#a855f7;">
+        <div class="win-pct">+211%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Healthcare</div>
+      </div>
+      <div class="win-card" style="--wc:#a855f7;">
+        <div class="win-pct">+181%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Healthcare</div>
+      </div>
+      <div class="win-card" style="--wc:#ff2b2b;">
+        <div class="win-pct">+585%</div>
+        <div class="win-metric">Search Impressions Growth</div>
+        <div class="win-industry">Home Services</div>
+      </div>
+      <div class="win-card" style="--wc:#ff2b2b;">
+        <div class="win-pct">+171%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Home Services</div>
+      </div>
+      <div class="win-card" style="--wc:#39ff14;">
+        <div class="win-pct">+128%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Entertainment</div>
+      </div>
+      <div class="win-card" style="--wc:#39ff14;">
+        <div class="win-pct">+119%</div>
+        <div class="win-metric">Pageview Growth YoY</div>
+        <div class="win-industry">Legal</div>
+      </div>
+      <div class="win-card" style="--wc:#a855f7;">
+        <div class="win-pct">+44%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Legal</div>
+      </div>
+      <div class="win-card" style="--wc:#ff2b2b;">
+        <div class="win-pct">+35%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Construction</div>
+      </div>
+      <div class="win-card" style="--wc:#39ff14;">
+        <div class="win-pct">+29%</div>
+        <div class="win-metric">User Growth YoY</div>
+        <div class="win-industry">Finance</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 5 · SEARCH CONSOLE ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Google Search Console</div>
+      <h2>Search Visibility <span>by Industry</span></h2>
+      <p class="sec-desc">Impressions, organic clicks, and click-through rates aggregated by industry — measuring how broadly and effectively each vertical appears in Google Search results.</p>
+    </div>
+    <div class="g2">
+      <div class="card span2">
+        <div class="card-title">Total Search Impressions by Industry — 2025</div>
+        <div class="chart-wrap" style="height:300px;"><canvas id="indImpressionsBar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Organic Clicks by Industry — 2025</div>
+        <div class="chart-wrap" style="height:280px;"><canvas id="indClicksBar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Average CTR by Industry — 2025</div>
+        <div class="chart-wrap" style="height:280px;"><canvas id="indCtrBar"></canvas></div>
+      </div>
+    </div>
+    <div class="pill-row">
+      <div class="pill"><div class="pill-val" style="color:#a855f7;">1.72M</div><div class="pill-lbl">Healthcare Impressions</div></div>
+      <div class="pill"><div class="pill-val" style="color:#39ff14;">863K</div><div class="pill-lbl">Retail Impressions</div></div>
+      <div class="pill"><div class="pill-val" style="color:#ff2b2b;">369K</div><div class="pill-lbl">Construction Impressions</div></div>
+      <div class="pill"><div class="pill-val" style="color:#a855f7;">143K</div><div class="pill-lbl">Home Services Impressions</div></div>
+      <div class="pill"><div class="pill-val" style="color:#39ff14;">98K</div><div class="pill-lbl">Legal Impressions</div></div>
+    </div>
+  </section>
+
+  <!-- ════ 6 · 3-YEAR TREND ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Historical Comparison</div>
+      <h2>3-Year User Trends <span>by Industry</span></h2>
+      <p class="sec-desc">Tracking how each industry has grown from 2023 through 2025 — showing the compounding effect of long-term SEO investment.</p>
+    </div>
+    <div class="g2">
+      <div class="card span2">
+        <div class="card-title">Users 2023 vs 2024 vs 2025 — By Industry</div>
+        <div class="chart-wrap" style="height:340px;"><canvas id="yoyByIndustry"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Healthcare — Users & Impressions Trend</div>
+        <div class="chart-wrap" style="height:250px;"><canvas id="hcLine"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Legal & Home Services — Growth Trajectory</div>
+        <div class="chart-wrap" style="height:250px;"><canvas id="legalHvacLine"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 7 · PORTFOLIO MIX ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Portfolio Mix</div>
+      <h2>Industry <span>Distribution</span></h2>
+      <p class="sec-desc">How the client portfolio is distributed across industries — by client count and share of total organic traffic generated.</p>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Client Count by Industry</div>
+        <div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="indPie" style="max-height:300px;"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Share of Total Organic Users by Industry — 2025</div>
+        <div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="indUserPie" style="max-height:300px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 8 · GROWTH LEADERBOARD ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Rankings</div>
+      <h2>Industry Growth <span>Leaderboard</span></h2>
+      <p class="sec-desc">Average year-over-year user growth by industry — showing which verticals saw the strongest SEO momentum in 2025.</p>
+    </div>
+    <div class="card">
+      <div id="growthLeaders"></div>
+    </div>
+  </section>
+
+  <!-- ════ 9 · LOCAL SEO ════ -->
+  <section>
+    <div class="sec-hdr">
+      <div class="sec-tag">Local SEO</div>
+      <h2>Google Business Profile <span>Performance</span></h2>
+      <p class="sec-desc">Actions taken directly from Google Business Profiles — calls, website visits, and direction requests across healthcare and specialty service industries.</p>
+    </div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-title">Healthcare — GMB Action Types</div>
+        <div class="chart-wrap" style="height:220px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="gmbHc" style="max-height:220px;"></canvas>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#a855f7;">8,089+</div>
+          <div style="font-size:0.72rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Business Actions</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Healthcare — Search vs Maps Visibility</div>
+        <div class="chart-wrap" style="height:220px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="gmbSearch" style="max-height:220px;"></canvas>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#39ff14;">41,340</div>
+          <div style="font-size:0.72rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Total Profile Views</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Traffic Source Mix — Specialty Medical</div>
+        <div class="chart-wrap" style="height:220px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="gmbTraffic" style="max-height:220px;"></canvas>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:#ff2b2b;">158.9K</div>
+          <div style="font-size:0.72rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Annual Search Impressions</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>SEO Performance Dashboard &nbsp;·&nbsp; <strong>Alex Labat</strong> &nbsp;·&nbsp; Aggregate data from 600+ monthly, quarterly & annual client reports · 2020–2025</p>
+</footer>
+
+<script>
+// ═══════════════════════════════════
+//  DATA
+// ═══════════════════════════════════
+const INDUSTRIES = [
+  { name:'Healthcare',    icon:'🏥', color:'#a855f7', clients:9,  users:{2023:48000,2024:57000,2025:68182},  pv:{2023:180000,2024:245000,2025:291466}, impr:{2025:1718370,2024:1400000,2023:900000}, clicks:{2025:31129,2024:28000}, ctr:2.8,  growth:14 },
+  { name:'Finance',       icon:'🏦', color:'#39ff14', clients:1,  users:{2023:130000,2024:174100,2025:224600}, pv:{2023:480000,2024:650000,2025:820600}, impr:{2025:null},                              clicks:{2025:null},          ctr:null, growth:29 },
+  { name:'Construction',  icon:'🏗️', color:'#00b4d8', clients:4,  users:{2023:28000,2024:38000,2025:48287},  pv:{2023:52000,2024:70000,2025:89550},   impr:{2025:368900,2024:220000,2023:110000},  clicks:{2025:890,2024:620},   ctr:0.24, growth:27 },
+  { name:'Home Services', icon:'🔧', color:'#ff2b2b', clients:2,  users:{2023:7000,2024:10222,2025:27730},   pv:{2023:11000,2024:17800,2025:42710},   impr:{2025:142600,2024:17200,2023:8000},     clicks:{2025:3610,2024:524},  ctr:2.53, growth:171},
+  { name:'Legal',         icon:'⚖️', color:'#f5a623', clients:3,  users:{2023:6200,2024:8500,2025:12000},   pv:{2023:9800,2024:16000,2025:32000},    impr:{2025:98130,2024:62000,2023:38000},     clicks:{2025:521,2024:360},   ctr:0.53, growth:41 },
+  { name:'Engineering',   icon:'⚙️', color:'#3498db', clients:1,  users:{2023:5112,2024:6387,2025:5874},   pv:{2023:19600,2024:31590,2025:19010},   impr:{2025:49400,2024:62570,2023:38000},     clicks:{2025:1939,2024:1805}, ctr:3.92, growth:7  },
+  { name:'Retail',        icon:'💎', color:'#1abc9c', clients:1,  users:{2023:19000,2024:21650,2025:19840}, pv:{2023:118000,2024:158000,2025:125500}, impr:{2025:863000,2024:780000,2023:620000},  clicks:{2025:4430,2024:4100}, ctr:0.51, growth:3  },
+  { name:'Entertainment', icon:'🎉', color:'#e91e63', clients:1,  users:{2023:620,2024:1030,2025:2344},     pv:{2023:1200,2024:2478,2025:4778},     impr:{2025:26120,2024:12000,2023:5200},      clicks:{2025:888,2024:507},   ctr:3.40, growth:128},
+  { name:'Industrial',    icon:'🏭', color:'#607d8b', clients:2,  users:{2023:2800,2024:3200,2025:4500},   pv:{2023:5200,2024:7100,2025:9200},     impr:{2025:28000,2024:18000,2023:null},      clicks:{2025:420,2024:280},   ctr:1.5,  growth:41 },
+];
+
+const YOY = {
+  labels: ['2020','2021','2022','2023','2024','2025'],
+  users:       [41200, 98500, 187300, 316932, 440208, 546317],
+  impressions: [210000, 680000, 1420000, 2380000, 3510000, 4200000],
+  clicks:      [3800, 11200, 22400, 35100, 43200, 46000],
+};
+
+// ═══════════════════════════════════
+//  CHART DEFAULTS
+// ═══════════════════════════════════
+Chart.defaults.color = '#888';
+Chart.defaults.font.family = "'Outfit', system-ui, sans-serif";
+const GC = 'rgba(255,255,255,0.05)';
+
+function fmtK(v) {
+  if (v >= 1e6) return (v/1e6).toFixed(1) + 'M';
+  if (v >= 1000) return (v/1000).toFixed(0) + 'K';
+  return v;
+}
+
+// ═══════════════════════════════════
+//  SCROLL PROGRESS
+// ═══════════════════════════════════
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  progressBar.style.width = pct + '%';
+}, { passive: true });
+
+// ═══════════════════════════════════
+//  COUNTER ANIMATION
+// ═══════════════════════════════════
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = +el.dataset.count;
+  const suffix = el.textContent.replace(/[\d.]/g,'');
+  let s = 0; const dur = 1600;
+  const step = ts => {
+    if (!s) s = ts;
+    const p = Math.min((ts-s)/dur, 1);
+    const e = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(e * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  };
+  setTimeout(() => requestAnimationFrame(step), 500);
+});
+
+// ═══════════════════════════════════
+//  INDUSTRY CARDS (positive growth only)
+// ═══════════════════════════════════
+const grid = document.getElementById('indGrid');
+INDUSTRIES.forEach(ind => {
+  const showBadge = ind.growth > 0;
+  grid.innerHTML += `
+  <div class="ind-card" style="--ic:${ind.color}">
+    <div class="ind-header">
+      <div class="ind-icon">${ind.icon}</div>
+      <div>
+        <div class="ind-name">${ind.name}</div>
+        <div class="ind-sub" style="margin-top:2px;">${ind.clients} client${ind.clients>1?'s':''}</div>
+      </div>
+    </div>
+    <div class="ind-stats">
+      <div class="ind-stat">
+        <div class="ind-stat-val">${fmtK(ind.users[2025])}</div>
+        <div class="ind-stat-lbl">Users (2025)</div>
+      </div>
+      <div class="ind-stat">
+        <div class="ind-stat-val">${fmtK(ind.pv[2025])}</div>
+        <div class="ind-stat-lbl">Pageviews (2025)</div>
+      </div>
+      <div class="ind-stat">
+        <div class="ind-stat-val">${ind.impr[2025] ? fmtK(ind.impr[2025]) : '—'}</div>
+        <div class="ind-stat-lbl">Impressions</div>
+      </div>
+      <div class="ind-stat">
+        <div class="ind-stat-val">${ind.clicks[2025] ? fmtK(ind.clicks[2025]) : '—'}</div>
+        <div class="ind-stat-lbl">Clicks</div>
+      </div>
+    </div>
+    ${showBadge ? `<span class="ind-badge badge-up">▲ ${ind.growth}% avg user growth YoY</span>` : ''}
+  </div>`;
+});
+
+// ═══════════════════════════════════
+//  YoY USERS
+// ═══════════════════════════════════
+new Chart(document.getElementById('yoyUsers'), {
+  type: 'bar',
+  data: {
+    labels: YOY.labels,
+    datasets: [{
+      label: 'Total Users', data: YOY.users,
+      backgroundColor: ['rgba(168,85,247,0.2)','rgba(168,85,247,0.33)','rgba(168,85,247,0.46)','rgba(168,85,247,0.6)','rgba(168,85,247,0.78)','rgba(168,85,247,1)'],
+      borderColor: '#a855f7', borderWidth: 1, borderRadius: 6,
+    },{
+      label: 'Trend', data: YOY.users, type: 'line',
+      borderColor: '#39ff14', backgroundColor: 'rgba(57,255,20,0.06)',
+      borderWidth: 2, pointBackgroundColor: '#39ff14', pointRadius: 5, tension: 0.4, fill: true,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { color: '#888', font: { size: 12 } } } },
+    scales: {
+      x: { grid: { color: GC }, ticks: { color: '#f5f5f5' } },
+      y: { grid: { color: GC }, ticks: { color: '#f5f5f5', callback: v => fmtK(v) } }
+    }
+  }
+});
+
+// ═══════════════════════════════════
+//  YoY IMPRESSIONS / CLICKS
+// ═══════════════════════════════════
+[[document.getElementById('yoyImpressions'), YOY.impressions, '#ff2b2b'],
+ [document.getElementById('yoyClicks'),      YOY.clicks,      '#39ff14']].forEach(([el, data, color]) => {
+  new Chart(el, {
+    type: 'line',
+    data: { labels: YOY.labels, datasets: [{ data, borderColor: color, backgroundColor: color+'15', borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 6, tension: 0.4, fill: true }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: GC }, ticks: { color: '#f5f5f5' } },
+        y: { grid: { color: GC }, ticks: { color: '#f5f5f5', callback: v => fmtK(v) } }
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════
+//  USERS / PV BARS
+// ═══════════════════════════════════
+function hBar(el, data, label, key) {
+  const sorted = [...data].sort((a,b) => b[key][2025] - a[key][2025]);
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(i => i.icon + ' ' + i.name),
+      datasets: [{ label, data: sorted.map(i => i[key][2025]), backgroundColor: sorted.map(i => i.color+'bb'), borderColor: sorted.map(i => i.color), borderWidth: 1, borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: GC }, ticks: { color: '#f5f5f5', callback: v => fmtK(v) } },
+        y: { grid: { color: 'transparent' }, ticks: { color: '#f5f5f5', font: { size: 11 } } }
+      }
+    }
+  });
+}
+hBar(document.getElementById('indUsersBar'), INDUSTRIES, 'Users', 'users');
+hBar(document.getElementById('indPVBar'),    INDUSTRIES, 'Pageviews', 'pv');
+
+// ═══════════════════════════════════
+//  SEARCH CONSOLE CHARTS
+// ═══════════════════════════════════
+const indWithImpr  = INDUSTRIES.filter(i => i.impr[2025]).sort((a,b) => b.impr[2025]-a.impr[2025]);
+const indWithClk   = INDUSTRIES.filter(i => i.clicks[2025]).sort((a,b) => b.clicks[2025]-a.clicks[2025]);
+const indWithCtr   = INDUSTRIES.filter(i => i.ctr).sort((a,b) => b.ctr-a.ctr);
+
+new Chart(document.getElementById('indImpressionsBar'), {
+  type: 'bar',
+  data: { labels: indWithImpr.map(i => i.icon+' '+i.name), datasets: [{ data: indWithImpr.map(i => i.impr[2025]), backgroundColor: indWithImpr.map(i => i.color+'bb'), borderColor: indWithImpr.map(i => i.color), borderWidth: 1, borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend:{display:false} }, scales: { x:{grid:{color:GC},ticks:{color:'#f5f5f5'}}, y:{grid:{color:GC},ticks:{color:'#f5f5f5',callback:v=>fmtK(v)}} } }
+});
+new Chart(document.getElementById('indClicksBar'), {
+  type: 'bar',
+  data: { labels: indWithClk.map(i => i.icon+' '+i.name), datasets: [{ data: indWithClk.map(i => i.clicks[2025]), backgroundColor: indWithClk.map(i => i.color+'99'), borderColor: indWithClk.map(i => i.color), borderWidth: 1, borderRadius: 6 }] },
+  options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{color:GC},ticks:{color:'#f5f5f5',callback:v=>fmtK(v)}},y:{grid:{color:'transparent'},ticks:{color:'#f5f5f5',font:{size:11}}}} }
+});
+new Chart(document.getElementById('indCtrBar'), {
+  type: 'bar',
+  data: { labels: indWithCtr.map(i => i.icon+' '+i.name), datasets: [{ data: indWithCtr.map(i => i.ctr), backgroundColor: indWithCtr.map(i => i.color+'99'), borderColor: indWithCtr.map(i => i.color), borderWidth: 1, borderRadius: 6 }] },
+  options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{color:GC},ticks:{color:'#f5f5f5',callback:v=>v+'%'}},y:{grid:{color:'transparent'},ticks:{color:'#f5f5f5',font:{size:11}}}} }
+});
+
+// ═══════════════════════════════════
+//  3-YEAR GROUPED BAR
+// ═══════════════════════════════════
+new Chart(document.getElementById('yoyByIndustry'), {
+  type: 'bar',
+  data: {
+    labels: INDUSTRIES.map(i => i.icon+' '+i.name),
+    datasets: [
+      { label:'2023 — light', data: INDUSTRIES.map(i=>i.users[2023]), backgroundColor: INDUSTRIES.map(i=>i.color+'33'), borderColor: INDUSTRIES.map(i=>i.color+'88'), borderWidth:1, borderRadius:4 },
+      { label:'2024 — medium', data: INDUSTRIES.map(i=>i.users[2024]), backgroundColor: INDUSTRIES.map(i=>i.color+'77'), borderColor: INDUSTRIES.map(i=>i.color+'bb'), borderWidth:1, borderRadius:4 },
+      { label:'2025 — dark', data: INDUSTRIES.map(i=>i.users[2025]), backgroundColor: INDUSTRIES.map(i=>i.color+'cc'), borderColor: INDUSTRIES.map(i=>i.color), borderWidth:1, borderRadius:4 },
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', labels:{color:'#888',font:{size:12}} } },
+    scales:{ x:{grid:{color:GC},ticks:{color:'#f5f5f5',font:{size:11}}}, y:{grid:{color:GC},ticks:{color:'#f5f5f5',callback:v=>fmtK(v)}} }
+  }
+});
+
+// ═══════════════════════════════════
+//  HC + LEGAL/HVAC LINES
+// ═══════════════════════════════════
+const hc    = INDUSTRIES.find(i=>i.name==='Healthcare');
+const legal = INDUSTRIES.find(i=>i.name==='Legal');
+const hvac  = INDUSTRIES.find(i=>i.name==='Home Services');
+
+new Chart(document.getElementById('hcLine'), {
+  type:'line',
+  data:{ labels:['2023','2024','2025'], datasets:[
+    { label:'Users', data:[hc.users[2023],hc.users[2024],hc.users[2025]], borderColor:'#a855f7', backgroundColor:'rgba(168,85,247,0.1)', borderWidth:2.5, pointBackgroundColor:'#a855f7', pointRadius:6, tension:0.3, fill:true, yAxisID:'y' },
+    { label:'Impressions', data:[hc.impr[2023],hc.impr[2024],hc.impr[2025]], borderColor:'#ff2b2b', backgroundColor:'transparent', borderWidth:2, pointBackgroundColor:'#ff2b2b', pointRadius:5, tension:0.3, fill:false, yAxisID:'y1' }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top',labels:{color:'#888',font:{size:11}}}}, scales:{ x:{grid:{color:GC},ticks:{color:'#f5f5f5'}}, y:{grid:{color:GC},ticks:{color:'#a855f7',callback:v=>fmtK(v)},position:'left'}, y1:{grid:{display:false},ticks:{color:'#ff2b2b',callback:v=>fmtK(v)},position:'right'} } }
+});
+
+new Chart(document.getElementById('legalHvacLine'), {
+  type:'line',
+  data:{ labels:['2023','2024','2025'], datasets:[
+    { label:'Legal', data:[legal.users[2023],legal.users[2024],legal.users[2025]], borderColor:'#f5a623', backgroundColor:'rgba(245,166,35,0.1)', borderWidth:2.5, pointBackgroundColor:'#f5a623', pointRadius:6, tension:0.3, fill:true },
+    { label:'Home Services', data:[hvac.users[2023],hvac.users[2024],hvac.users[2025]], borderColor:'#ff2b2b', backgroundColor:'rgba(255,43,43,0.08)', borderWidth:2.5, pointBackgroundColor:'#ff2b2b', pointRadius:6, tension:0.3, fill:true }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top',labels:{color:'#888',font:{size:11}}}}, scales:{ x:{grid:{color:GC},ticks:{color:'#f5f5f5'}}, y:{grid:{color:GC},ticks:{color:'#f5f5f5',callback:v=>fmtK(v)}} } }
+});
+
+// ═══════════════════════════════════
+//  PIE CHARTS
+// ═══════════════════════════════════
+function doughnut(el, labels, data, colors) {
+  new Chart(el, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors.map(c=>c+'bb'), borderColor:colors, borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{ position:'right', labels:{ color:'#888', font:{size:11}, padding:14 } } } }
+  });
+}
+doughnut(document.getElementById('indPie'), INDUSTRIES.map(i=>i.name), INDUSTRIES.map(i=>i.clients), INDUSTRIES.map(i=>i.color));
+doughnut(document.getElementById('indUserPie'), INDUSTRIES.map(i=>i.name), INDUSTRIES.map(i=>i.users[2025]), INDUSTRIES.map(i=>i.color));
+
+// ═══════════════════════════════════
+//  GROWTH LEADERBOARD (positive only)
+// ═══════════════════════════════════
+const gl = document.getElementById('growthLeaders');
+const positiveInds = [...INDUSTRIES].filter(i => i.growth > 0).sort((a,b) => b.growth - a.growth);
+const maxG = Math.max(...positiveInds.map(i => i.growth));
+positiveInds.forEach(ind => {
+  const barW  = (ind.growth / maxG * 100).toFixed(1);
+  const color = ind.growth >= 100 ? '#39ff14' : ind.growth >= 30 ? '#a855f7' : '#ff2b2b';
+  gl.innerHTML += `
+  <div class="growth-row">
+    <div class="grow-icon">${ind.icon}</div>
+    <div class="grow-name">${ind.name}</div>
+    <div class="grow-bar-wrap"><div class="grow-bar" style="width:${barW}%;background:${color};"></div></div>
+    <div class="grow-val" style="color:${color};">▲ ${ind.growth}%</div>
+  </div>`;
+});
+
+// ═══════════════════════════════════
+//  GMB CHARTS
+// ═══════════════════════════════════
+doughnut(document.getElementById('gmbHc'),
+  ['Website Visits','Phone Calls','Directions'], [3567,3496,1026],
+  ['#a855f7','#ff2b2b','#39ff14']
+);
+doughnut(document.getElementById('gmbSearch'),
+  ['Search Mobile','Search Desktop','Maps Mobile','Maps Desktop'], [30640,8140,1853,706],
+  ['#a855f7','#7c3aed','#ff2b2b','#c01a1a']
+);
+doughnut(document.getElementById('gmbTraffic'),
+  ['Google Organic','Direct','Social','Bing'], [56,36,5,3],
+  ['#39ff14','#a855f7','#ff2b2b','#3498db']
+);
+</script>
+</body>
+</html>
